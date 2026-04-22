@@ -865,26 +865,13 @@ export async function bulkAssignEnquiries(
       };
     }
 
-    // Validation: Check if any enquiries are already assigned
-    const assignedEnquiriesCount = await prisma.enquiry.count({
-      where: {
-        id: { in: ids },
-        OR: [
-          { assignedToUserId: { not: null } },
-          { jobLeads: { some: {} } }
-        ]
-      }
-    });
-
-    if (assignedEnquiriesCount > 0) {
-      return {
-        success: false,
-        message: 'Some selected enquiries are already assigned. Bulk assignment requires unassigned enquiries.',
-      };
-    }
-
     // Use transaction to update enquiries and optionally create job order
     const result = await prisma.$transaction(async (tx) => {
+      // Remove existing job leads (re-assignment logic)
+      await tx.jobLead.deleteMany({
+        where: { leadId: { in: ids } }
+      });
+
       // Update all enquiries
       const updateResult = await tx.enquiry.updateMany({
         where: {
@@ -1021,7 +1008,7 @@ export async function bulkImportEnquiries(
             branchId: commonFields.branchId,
             enquirySourceId: commonFields.enquirySourceId,
             createdByUserId: user.id,
-            assignedToUserId: user.id, // Defaults to the importer
+            assignedToUserId: null, // Keep unassigned so they can be bulk assigned later
             lastContactDate: new Date(),
           },
         });
