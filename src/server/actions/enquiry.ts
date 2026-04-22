@@ -958,6 +958,8 @@ export async function bulkAssignEnquiries(
 }
 
 
+
+
 export async function deleteEnquiry(id: string): Promise<ActionResponse> {
   try {
     const user = await getCurrentUser();
@@ -981,6 +983,62 @@ export async function deleteEnquiry(id: string): Promise<ActionResponse> {
     return {
       success: false,
       message: 'Failed to delete enquiry',
+    };
+  }
+}
+
+// Bulk Import Action
+export async function bulkImportEnquiries(
+  leads: any[],
+  commonFields: { branchId: string; enquirySourceId: string }
+): Promise<ActionResponse> {
+  try {
+    const user = await getCurrentUser();
+
+    if (!leads || leads.length === 0) {
+      return { success: false, message: 'No data found in the file' };
+    }
+
+    // Process in batches or a single transaction
+    const result = await prisma.$transaction(
+      leads.map((lead) => {
+        // Basic mapping logic - can be expanded
+        const name = lead.candidateName || lead['Candidate Name'] || lead['Name'];
+        const phone = String(lead.phone || lead['Phone'] || lead['Mobile'] || '');
+        
+        if (!name || !phone) {
+          throw new Error('Candidate Name and Phone are required for all rows');
+        }
+
+        return prisma.enquiry.create({
+          data: {
+            candidateName: name,
+            phone: phone,
+            email: lead.email || lead['Email'] || null,
+            address: lead.address || lead['Address'] || null,
+            notes: lead.notes || lead['Notes'] || 'Imported via Bulk Upload',
+            status: EnquiryStatus.NEW,
+            branchId: commonFields.branchId,
+            enquirySourceId: commonFields.enquirySourceId,
+            createdByUserId: user.id,
+            assignedToUserId: user.id, // Defaults to the importer
+            lastContactDate: new Date(),
+          },
+        });
+      })
+    );
+
+    revalidatePath('/enquiries');
+    return {
+      success: true,
+      data: result,
+      message: `${result.length} enquiries imported successfully`,
+    };
+  } catch (error: any) {
+    console.error('Error bulk importing enquiries:', error);
+    return {
+      success: false,
+      message: error.message || 'Failed to import enquiries. Please check your file format.',
     };
   }
 }

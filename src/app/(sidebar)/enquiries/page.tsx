@@ -35,6 +35,7 @@ import { getAllBranches } from '@/server/actions/data-management';
 import { ENQUIRY_STATUS_OPTIONS } from '@/constants/enquiry';
 import { toast } from 'sonner';
 import { EnquiryFormDialog } from '@/components/enquiry/enquiry-form-dialog';
+import { ImportLeadsDialog } from '@/components/enquiry/import-leads-dialog';
 import { DeleteEnquiryDialog } from '@/components/enquiry/delete-enquiry-dialog';
 import { EnquiryMobileCard } from '@/components/enquiry/enquiry-mobile-card';
 import { AssignEnquiryDialog } from '@/components/enquiry/assign-enquiry-dialog';
@@ -264,6 +265,7 @@ export default function EnquiriesPage() {
             <Briefcase className="mr-2 h-4 w-4" />
             Job Orders
           </Button>
+          <ImportLeadsDialog onSuccess={refreshEnquiries} />
           <EnquiryFormDialog mode="create" onSuccess={refreshEnquiries} />
         </div>
       </div>
