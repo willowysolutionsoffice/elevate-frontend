@@ -107,6 +107,7 @@ export default function EnquiriesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [filterBranchId, setFilterBranchId] = useState<string>('all');
   const [filterAssigned, setFilterAssigned] = useState<string>('all');
+  const [prevFilterAssigned, setPrevFilterAssigned] = useState<string>('all');
 
   // Fetch branches
   useEffect(() => {
@@ -154,8 +155,11 @@ export default function EnquiriesPage() {
     fetchEnquiriesData();
     setSelectedEnquiryIds([]); // Clear selection on refresh
     setBulkAssignBranchId(null);
-    setIsBulkSelectionEnabled(false);
-  }, [fetchEnquiriesData]);
+    if (isBulkSelectionEnabled) {
+      setIsBulkSelectionEnabled(false);
+      setFilterAssigned(prevFilterAssigned);
+    }
+  }, [fetchEnquiriesData, isBulkSelectionEnabled, prevFilterAssigned]);
 
   // Bulk Action Handlers
   const toggleBulkSelection = () => {
@@ -164,16 +168,19 @@ export default function EnquiriesPage() {
       setIsBulkSelectionEnabled(false);
       setSelectedEnquiryIds([]);
       setBulkAssignBranchId(null);
+      setFilterAssigned(prevFilterAssigned);
       if (filterBranchId === bulkAssignBranchId) {
         setFilterBranchId('all');
       }
     } else {
+      setPrevFilterAssigned(filterAssigned);
       if (userRole === 'admin' && filterBranchId === 'all') {
         setBulkBranchDialogOpen(true);
       } else {
         if (filterBranchId !== 'all') {
           setBulkAssignBranchId(filterBranchId);
         }
+        setFilterAssigned('unassigned');
         setIsBulkSelectionEnabled(true);
       }
     }
@@ -299,6 +306,7 @@ export default function EnquiriesPage() {
                     setFilterBranchId(value);
                     setCurrentPage(1);
                   }}
+                  disabled={isBulkSelectionEnabled}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Branch" />
@@ -323,6 +331,7 @@ export default function EnquiriesPage() {
                   setFilterAssigned(value);
                   setCurrentPage(1);
                 }}
+                disabled={isBulkSelectionEnabled}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Assignment" />
