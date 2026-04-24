@@ -285,6 +285,11 @@ model Enquiry {
   admissions Admission[]
   jobLeads   JobLead[]
 
+  @@index([status])
+  @@index([branchId])
+  @@index([assignedToUserId])
+  @@index([createdAt])
+  @@index([updatedAt])
   @@map("enquiry")
 }
 
@@ -314,6 +319,9 @@ model EnquiryActivity {
   User      User?    @relation(fields: [userId], references: [id])
   userId    String?
 
+  @@index([enquiryId])
+  @@index([type])
+  @@index([createdAt])
   @@map("enquiry_activity")
 }
 
@@ -335,6 +343,9 @@ model FollowUp {
   updatedAt  DateTime          @updatedAt
   activities EnquiryActivity[]
 
+  @@index([enquiryId])
+  @@index([status])
+  @@index([scheduledAt])
   @@map("follow_up")
 }
 
@@ -356,6 +367,8 @@ model CallLog {
   updatedAt  DateTime          @updatedAt
   activities EnquiryActivity[]
 
+  @@index([enquiryId])
+  @@index([createdAt])
   @@map("call_log")
 }
 
@@ -556,6 +569,10 @@ model JobOrder {
   createdAt  DateTime  @default(now())
   jobLeads   JobLead[]
 
+  @@index([branchId])
+  @@index([managerId])
+  @@index([startDate])
+  @@index([endDate])
   @@map("job_order")
 }
 
@@ -572,6 +589,10 @@ model JobLead {
   assigneeId String?
   assignee   User?         @relation("JobLeadAssignee", fields: [assigneeId], references: [id])
 
+  @@index([jobId])
+  @@index([leadId])
+  @@index([assigneeId])
+  @@index([status])
   @@map("job_lead")
 }
 
@@ -594,5 +615,8 @@ model Notification {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
   @@map("notification")
 }

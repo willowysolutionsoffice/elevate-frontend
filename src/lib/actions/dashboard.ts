@@ -34,12 +34,11 @@ export async function getDashboardData(
   // Get basic enquiry stats
   const [
     totalEnquiries,
-    newEnquiries,
+    newEnquiriesCount,
     totalCalls,
     overdueFollowUps,
     todayFollowUps,
     interestedLeads,
-    recentNewEnquiries,
     recentCallLogs,
     enrolledEnquiries,
   ] = await Promise.all([
@@ -92,14 +91,6 @@ export async function getDashboardData(
       },
     }),
 
-    // Recent new enquiries (last 7 days)
-    prisma.enquiry.count({
-      where: {
-        ...userFilter,
-        createdAt: { gte: sevenDaysAgo },
-      },
-    }),
-
     // Recent call logs (last 7 days)
     prisma.callLog.count({
       where: {
@@ -119,14 +110,13 @@ export async function getDashboardData(
   ]);
 
   // Calculate performance metrics
-
   const interestRate = totalEnquiries > 0 ? (interestedLeads / totalEnquiries) * 100 : 0;
   const conversionRate = totalEnquiries > 0 ? (enrolledEnquiries / totalEnquiries) * 100 : 0;
 
   return {
     stats: {
       totalEnquiries,
-      newEnquiries,
+      newEnquiries: newEnquiriesCount,
       pendingFollowUps: overdueFollowUps + todayFollowUps,
       totalCalls,
     },
@@ -137,8 +127,8 @@ export async function getDashboardData(
     },
     recentActivity: {
       newEnquiries: {
-        count: recentNewEnquiries,
-        description: `${recentNewEnquiries} new leads`,
+        count: newEnquiriesCount,
+        description: `${newEnquiriesCount} new leads`,
       },
       callsMade: {
         count: recentCallLogs,

@@ -65,6 +65,7 @@ export default function EnquiriesPage() {
     }
   }, [session?.user?.role, canAssign]);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [pagination, setPagination] = useState<{
@@ -143,7 +144,16 @@ export default function EnquiriesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, search, filterBranchId, filterAssigned]);
+  }, [currentPage, debouncedSearch, filterBranchId, filterAssigned]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Fetch enquiries on component mount and when filters change
   useEffect(() => {
@@ -251,10 +261,10 @@ export default function EnquiriesPage() {
     return new Date(date).toLocaleDateString();
   };
 
-  // Handle search with debouncing
+  // Handle search change
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   return (

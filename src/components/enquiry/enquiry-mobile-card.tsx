@@ -25,7 +25,9 @@ interface EnquiryMobileCardProps {
   onDelete: (enquiryId: string, candidateName: string) => void;
 }
 
-export function EnquiryMobileCard({ enquiry, onView, onEdit, onDelete }: EnquiryMobileCardProps) {
+import { memo } from 'react';
+
+export const EnquiryMobileCard = memo(function EnquiryMobileCard({ enquiry, onView, onEdit, onDelete }: EnquiryMobileCardProps) {
   const getStatusColor = (status: string) => {
     const statusOption = ENQUIRY_STATUS_OPTIONS.find((option) => option.value === status);
     return statusOption
@@ -165,4 +167,4 @@ export function EnquiryMobileCard({ enquiry, onView, onEdit, onDelete }: Enquiry
       </CardContent>
     </Card>
   );
-}
+});

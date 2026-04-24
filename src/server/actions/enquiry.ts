@@ -193,20 +193,20 @@ export async function getEnquiries(filters: EnquiryFilters = {}): Promise<Action
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          branch: true,
-          preferredCourse: true,
-          enquirySource: true,
-          requiredService: true,
+        select: {
+          id: true,
+          candidateName: true,
+          phone: true,
+          contact2: true,
+          email: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          branchId: true,
+          branch: { select: { id: true, name: true } },
+          preferredCourse: { select: { id: true, name: true } },
+          enquirySource: { select: { id: true, name: true } },
           assignedTo: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-            },
-          },
-          createdBy: {
             select: {
               id: true,
               name: true,
