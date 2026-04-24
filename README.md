@@ -1,7 +1,7 @@
 # CRM Pro
 
 A modern, scalable Customer Relationship Management (CRM) dashboard built with Next.js 15, TypeScript, and shadcn/ui components.
-new
+new added
 ## 🏗️ Architecture
 
 This project follows a well-structured, maintainable architecture with clear separation of concerns:
